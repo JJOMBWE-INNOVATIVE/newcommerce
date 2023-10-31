@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "193941780564",
+    "project_id": "newcommerce-df096",
+    "storage_bucket": "newcommerce-df096.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:193941780564:android:b9c0f79d38dab5d20195c1",
+        "android_client_info": {
+          "package_name": "com.example.newcommerce"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA7L6zWY93kNrbg8AEsXf6kwvDyD2onHBM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
