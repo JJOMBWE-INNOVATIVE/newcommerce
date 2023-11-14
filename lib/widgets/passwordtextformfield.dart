@@ -6,17 +6,17 @@ import 'package:flutter/material.dart';
 class PasswordTextFormField extends StatelessWidget {
   final bool obserText;
   final TextEditingController? controller;
-  final String name;
+  final String? name;
   final String? Function(String?)? validator;
   final String? Function(String?)? onChanged;
 
   final Function onTap;
   const PasswordTextFormField({super.key, 
      this.controller,
-    required this.validator,
+     this.validator,
     required this.onTap,
     this.onChanged,
-    required this.name,
+     this.name,
     required this.obserText,
   });
   @override

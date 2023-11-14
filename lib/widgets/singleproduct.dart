@@ -2,17 +2,19 @@
 import 'package:flutter/material.dart';
 
 class SingleProduct extends StatelessWidget {
-  final String image;
-  final double price;
-  final String name;
-  SingleProduct({required this.image, required this.name, required this.price});
+  final String? image;
+  final double ?price;
+  final String ?name;
+  final Color? color;
+  const SingleProduct({super.key, this.color,
+   this.image,  this.name,  this.price});
   @override
   Widget build(BuildContext context) {
     double width, height;
     width = MediaQuery.of(context).size.width;
     height = MediaQuery.of(context).size.height;
     return Card(
-      child: Container(
+      child: SizedBox(
         height: height * 0.3,
         width: width * 0.2 * 2 + 10,
         child: Column(
@@ -20,15 +22,13 @@ class SingleProduct extends StatelessWidget {
             Expanded(
               flex: 3,
               child: Container(
-                padding: EdgeInsets.symmetric(vertical: 10),
+                padding: const EdgeInsets.symmetric(vertical: 10),
                 child: Container(
                   width: 160,
                   decoration: BoxDecoration(
                     image: DecorationImage(
                       fit: BoxFit.fill,
-                      // image: NetworkImage(image),
-                      image: AssetImage("images/$image")
-
+                      image: NetworkImage(image??""),
                     ),
                   ),
                 ),
@@ -46,7 +46,7 @@ class SingleProduct extends StatelessWidget {
                   ),
                   Container(
                     child: Text(
-                      name,
+                      name??"",
                       style: const TextStyle(fontSize: 15),
                     ),
                   )

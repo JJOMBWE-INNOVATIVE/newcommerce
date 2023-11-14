@@ -12,7 +12,7 @@ class MyButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: () => onPressed(),
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.lightBlue, 
+          backgroundColor:const Color(0xff746bc9),
         ),
         child: Text(
           name,

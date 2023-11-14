@@ -7,11 +7,12 @@ class MyTextFormField extends StatelessWidget {
   final String? Function(String?)? onChanged;
   final String? Function(String?)? validator;
 
+
   const MyTextFormField({super.key, 
      this.controller,
     required this.name,
     this.onChanged,
-    required this.validator
+     this.validator
   });
   @override
   Widget build(BuildContext context) {
