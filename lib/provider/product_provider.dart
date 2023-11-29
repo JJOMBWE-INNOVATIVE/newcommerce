@@ -210,8 +210,16 @@ List<Product> get getFeaturesList {
 }
 
 
+String? userImage;
 
+  void setUserImage(String? image) {
+    userImage = image;
+    notifyListeners();
+  }
 
+  String? getUserImage() {
+    return userImage;
+  }
 
 
 

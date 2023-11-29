@@ -3,10 +3,13 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:newcommerce/provider/category_provider.dart';
 import 'package:newcommerce/provider/product_provider.dart';
+import 'package:newcommerce/screens/Splash_screen.dart';
 import 'package:newcommerce/screens/homepage.dart';
 import 'package:newcommerce/screens/login.dart';
+import 'package:newcommerce/screens/profilescreen.dart';
+import 'package:newcommerce/screens/signup.dart';
+import 'package:newcommerce/screens/welcomescreen.dart';
 import 'package:provider/provider.dart';
-
 import 'firebase_options.dart';
 
 Future main() async {
@@ -26,7 +29,9 @@ class MyApp extends StatelessWidget {
       future: Firebase.initializeApp(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return MultiProvider(
+          return
+ 
+MultiProvider(
             providers: [
               ChangeNotifierProvider(create: (context) => ProductProvider()),
               ChangeNotifierProvider(create: (context) => CategoryProvider()),
@@ -36,7 +41,22 @@ class MyApp extends StatelessWidget {
                 builder: (ctx, snapShort) {
                   return MaterialApp(
                     debugShowCheckedModeBanner: false,
-                    home: snapShort.hasData ? const HomePage() : const Login(),
+                    home: FutureBuilder(
+                      future: Future.delayed(const
+ 
+                      Duration(seconds: 3)),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.done) {
+                          if (snapShort.hasData) {
+                            return const HomePage();
+                          } else {
+                            return const WelcomeScreen();
+                          }
+                        } else {
+                          return const SplashScreen();
+                        }
+                      },
+                    ),
                   );
                 }),
           );
@@ -47,4 +67,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

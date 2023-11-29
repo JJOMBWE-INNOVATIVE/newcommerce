@@ -1,5 +1,3 @@
-
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -24,27 +22,26 @@ class _ContactUsState extends State<ContactUs> {
 
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  void vaildation() async {
-  if (message.text.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Please fill message")),
-    );
-  } else {
-    User? user = FirebaseAuth.instance.currentUser;
-    FirebaseFirestore.instance.collection("Message").doc(user?.uid).set({
-      "Name": name,
-      "Email": email,
-      "Message": message.text,
-    }).then((value) {
-      message.clear();
-    }).catchError((error) {
-      Text("Message sending failed: $error");
-    });
+  void validation() async {
+    if (message.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please fill message")),
+      );
+    } else {
+      User? user = FirebaseAuth.instance.currentUser;
+      FirebaseFirestore.instance.collection("Message").doc(user?.uid).set({
+        "Name": name,
+        "Email": email,
+        "Message": message.text,
+      }).then((value) {
+        message.clear();
+      }).catchError((error) {
+        Text("Message sending failed: $error");
+      });
+    }
   }
-}
 
-
-  Widget _buildSingleFlied({required String name}) {
+  Widget _buildSingleField({required String name}) {
     return Container(
       height: 60,
       width: double.infinity,
@@ -72,12 +69,16 @@ class _ContactUsState extends State<ContactUs> {
     ProductProvider provider;
     provider = Provider.of<ProductProvider>(context, listen: false);
     List<UserModel> user = provider.userModelList;
-    user.map((e) {
-      name = e.userName;
-      email = e.userEmail;
 
-      return Container();
-    }).toList();
+    // Check if the user list is not empty before trying to access its elements
+    if (user.isNotEmpty) {
+      name = user.first.userName;
+      email = user.first.userEmail;
+    } else {
+      // Provide default values or handle this case as needed
+      name = "Default Name";
+      email = "Default Email";
+    }
 
     super.initState();
   }
@@ -88,8 +89,8 @@ class _ContactUsState extends State<ContactUs> {
     return GestureDetector(
       onTap: () {
         Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-        builder: (ctx) => const HomePage()));
+          MaterialPageRoute(builder: (ctx) => const HomePage()),
+        );
       },
       child: Scaffold(
         key: _scaffoldKey,
@@ -122,8 +123,8 @@ class _ContactUsState extends State<ContactUs> {
                   fontSize: 28,
                 ),
               ),
-              _buildSingleFlied(name: name),
-              _buildSingleFlied(name: email),
+              _buildSingleField(name: name),
+              _buildSingleField(name: email),
               SizedBox(
                 height: 200,
                 child: TextFormField(
@@ -140,7 +141,7 @@ class _ContactUsState extends State<ContactUs> {
               MyButton(
                 name: "Submit",
                 onPressed: () {
-                  vaildation();
+                  validation();
                 },
               )
             ],

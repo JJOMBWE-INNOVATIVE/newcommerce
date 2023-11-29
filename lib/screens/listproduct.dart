@@ -12,6 +12,7 @@ import 'package:newcommerce/widgets/notification_button.dart';
 import 'package:newcommerce/widgets/singleproduct.dart';
 import 'package:provider/provider.dart';
 
+// ignore: must_be_immutable
 class ListProduct extends StatelessWidget {
   final String? name;
   final bool? isCategory;
@@ -54,7 +55,6 @@ class ListProduct extends StatelessWidget {
   }
 
   Widget _buildMyGridView(context) {
-    final Orientation orientation = MediaQuery.of(context).orientation;
 
     return SizedBox(
       height: 700,

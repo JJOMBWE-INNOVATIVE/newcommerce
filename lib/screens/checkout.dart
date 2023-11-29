@@ -10,7 +10,7 @@ import 'package:newcommerce/widgets/notification_button.dart';
 import 'package:provider/provider.dart';
 
 class CheckOut extends StatefulWidget {
-  const CheckOut({super.key});
+  const CheckOut({Key? key});
 
   @override
   _CheckOutState createState() => _CheckOutState();
@@ -22,7 +22,7 @@ class _CheckOutState extends State<CheckOut> {
   );
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  late ProductProvider productProvider;
+  ProductProvider? productProvider;
 
   Widget _buildBottomSingleDetail({required String startName, required String endName}) {
     return Row(
@@ -46,84 +46,89 @@ class _CheckOutState extends State<CheckOut> {
 
   Widget _buildButton() {
     return Column(
-        children: productProvider.userModelList.map((e) {
-      return SizedBox(
-        height: 50,
-        child: MyButton(
-          name: "Buy",
-          onPressed: () {
-            if (productProvider.getCheckOutModelList.isNotEmpty) {
-              FirebaseFirestore.instance.collection("Order").add({
-                "Product": productProvider.getCheckOutModelList
-                    .map((c) => {
-                          "ProductName": c.name,
-                          "ProductPrice": c.price,
-                          "ProductQuetity": c.quantity,
-                          "ProductImage": c.image,
-                          "Product Color": c.color,
-                          "Product Size": c.size,
-                        })
-                    .toList(),
-                "TotalPrice": total.toStringAsFixed(2),
-                "UserName": e.userName,
-                "UserEmail": e.userEmail,
-                "UserNumber": e.userPhoneNumber,
-                "UserAddress": e.userAddress,
-                "UserId": user.uid,
-              });
-              setState(() {
-                myList.clear();
-              });
+      children: productProvider?.userModelList?.map((e) {
+        return SizedBox(
+          height: 50,
+          child: MyButton(
+            name: "Buy",
+            onPressed: () {
+              if (productProvider?.getCheckOutModelList?.isNotEmpty == true) {
+                FirebaseFirestore.instance.collection("Order").add({
+                  "Product": productProvider!.getCheckOutModelList!
+                      .map((c) => {
+                            "ProductName": c.name ?? "",
+                            "ProductPrice": c.price ?? 0.0,
+                            "ProductQuetity": c.quantity ?? 0,
+                            "ProductImage": c.image ?? "",
+                            "Product Color": c.color ?? "",
+                            "Product Size": c.size ?? "",
+                          })
+                      .toList(),
+                  "TotalPrice": total.toStringAsFixed(2),
+                  "UserName": e.userName ?? "",
+                  "UserEmail": e.userEmail ?? "",
+                  "UserNumber": e.userPhoneNumber ?? "",
+                  "UserAddress": e.userAddress ?? "",
+                  "UserId": user.uid,
+                });
+                setState(() {
+                  myList.clear();
+                });
 
-              productProvider.addNotification("Notification");
-            } else {
-              ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("No Item Yet")),
-            );
-            }
-          },
-        ),
-      );
-    }).toList());
+                productProvider?.addNotification("Notification");
+              } else {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("No Item Yet")),
+                );
+              }
+            },
+          ),
+        );
+      }).toList() ?? [],
+    );
   }
 
   @override
   void initState() {
     productProvider = Provider.of<ProductProvider>(context, listen: false);
-    myList = productProvider.checkOutModelList;
+    myList = productProvider?.checkOutModelList ?? [];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     user = FirebaseAuth.instance.currentUser!;
+
     double subTotal = 0;
     double discount = 3;
     double discountRupees;
     double shipping = 60;
 
     productProvider = Provider.of<ProductProvider>(context);
-    for (var element in productProvider.getCheckOutModelList) {
-      subTotal += (element.price! * (element.quantity ?? 0));
+    if (productProvider != null) {
+      for (var element in productProvider!.getCheckOutModelList ?? []) {
+        subTotal += (element.price ?? 0) * (element.quantity ?? 0);
+      }
     }
 
     discountRupees = discount / 100 * subTotal;
     total = subTotal + shipping - discountRupees;
-    if (productProvider.checkOutModelList.isEmpty) {
+
+    if (productProvider?.checkOutModelList?.isEmpty == true) {
       total = 0.0;
       discount = 0.0;
       shipping = 0.0;
     }
 
     return WillPopScope(
-       onWillPop: () async {
-    bool shouldPop = true;
-    await Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (ctx) => const HomePage(),
-      ),
-    );
-    return shouldPop;
+      onWillPop: () async {
+        bool shouldPop = true;
+        await Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (ctx) => const HomePage(),
+          ),
+        );
+        return shouldPop;
       },
       child: Scaffold(
         key: _scaffoldKey,
@@ -168,12 +173,12 @@ class _CheckOutState extends State<CheckOut> {
                   itemBuilder: (ctx, myIndex) {
                     return CheckOutSingleProduct(
                       index: myIndex,
-                      color: myList[myIndex].color??"",
-                      size: myList[myIndex].size??"",
-                      image: myList[myIndex].image??"",
-                      name: myList[myIndex].name??"",
-                      price: myList[myIndex].price?? 0.0,
-                      quantity: myList[myIndex].quantity?? 0,
+                      color: myList[myIndex].color ?? "",
+                      size: myList[myIndex].size ?? "",
+                      image: myList[myIndex].image ?? "",
+                      name: myList[myIndex].name ?? "",
+                      price: myList[myIndex].price ?? 0.0,
+                      quantity: myList[myIndex].quantity ?? 0,
                     );
                   },
                 ),
@@ -200,7 +205,7 @@ class _CheckOutState extends State<CheckOut> {
                     ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),

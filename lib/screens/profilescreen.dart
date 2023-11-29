@@ -1,3 +1,4 @@
+// import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,8 @@ TextEditingController userAddress = TextEditingController();
       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
   RegExp regExp = RegExp(p);
   bool isMale = false;
+  final CollectionReference _userCollection =
+  FirebaseFirestore.instance.collection("User");
   void vaildation() async {
     if (userName.text.isEmpty && phoneNumber.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -51,6 +54,12 @@ TextEditingController userAddress = TextEditingController();
     } else {
       userDetailUpdate();
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+     getUserUid();
   }
 
   File? _pickedImage;
@@ -75,9 +84,9 @@ TextEditingController userAddress = TextEditingController();
   }
 
   void getUserUid() {
-    User? myUser = FirebaseAuth.instance.currentUser;
-    userUid = myUser?.uid;
-  }
+  userUid = FirebaseAuth.instance.currentUser?.uid;
+}
+
 
   bool centerCircle = false;
   var imageMap;
@@ -137,13 +146,19 @@ TextEditingController userAddress = TextEditingController();
   bool edit = false;
 
   Widget _buildContainerPart() {
-        List<UserModel> userModel = productProvider!.userModelList;
+        List<UserModel>? userModelList = productProvider?.userModelList;
+
+          if (userModelList == null || userModelList.isEmpty) {
+        // Handle the case where userModelList is null or empty
+        return Text("No data"); // or show a placeholder, error message, etc.
+      }
+
         return Column(
-          children: userModel.map((e) {
-            userImage = e.userImage;
-            userName.text = e.userName;
-            phoneNumber.text = e.userPhoneNumber;
-            userAddress.text = e.userAddress;
+          children: userModelList!.map((e) {
+          userImage = e.userImage;
+          userName.text = e.userName;
+          phoneNumber.text = e.userPhoneNumber;
+          userAddress.text = e.userAddress;
 
             return SizedBox(
               height: 350,
@@ -195,7 +210,14 @@ TextEditingController userAddress = TextEditingController();
   }
 
   Widget _buildProfileTextFields() {
-        UserModel userModel = productProvider!.userModelList[0];
+        List<UserModel>? userModelList = productProvider?.userModelList;
+
+        if (userModelList == null || userModelList.isEmpty) {
+          // Handle the case where userModelList is null or empty
+          return Text("No data"); // or show a placeholder, error message, etc.
+        }
+
+        UserModel userModel = userModelList[0];
         return SizedBox(
           height: 350,
           child: Column(
@@ -262,11 +284,12 @@ TextEditingController userAddress = TextEditingController();
   Widget build(BuildContext context) {
     productProvider = Provider.of<ProductProvider>(context);
     getUserUid();
+    User? user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       resizeToAvoidBottomInset: true,
       key: _scaffoldKey,
       backgroundColor: const Color(0xfff8f8f8),
-      appBar: AppBar(
+       appBar: AppBar(
         leading: edit == true
             ? IconButton(
                 icon: const Icon(
@@ -296,11 +319,11 @@ TextEditingController userAddress = TextEditingController();
                   });
                 },
               ),
-        backgroundColor: Colors.white,
-        actions: [
-          edit == false
-              ? const NotificationButton()
-              : IconButton(
+                 backgroundColor: Colors.white,
+                 actions: [
+                edit == false
+                ? const NotificationButton()
+                : IconButton(
                   icon: const Icon(
                     Icons.check,
                     size: 30,
@@ -311,33 +334,34 @@ TextEditingController userAddress = TextEditingController();
                   },
                 ),
         ],
-      ),
-      body: centerCircle == false
-          ? ListView(
+        ),
+           body: centerCircle == false
+           ? ListView(
               children: [
-                StreamBuilder(
-                    stream: FirebaseFirestore.instance
-                        .collection("User")
-                        .snapshots(),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      var myDoc = snapshot.data?.docs;
-                      myDoc?.forEach((checkDocs) {
-                        if (checkDocs.data()["UserId"] == userUid) {
-                          userModel = UserModel(
-                            userEmail: checkDocs.data()["UserEmail"],
-                            userImage: checkDocs.data()["UserImage"],
-                            userAddress: checkDocs.data()["UserAddress"],
-                            userGender: checkDocs.data()["UserGender"],
-                            userName: checkDocs.data()["UserName"],
-                            userPhoneNumber: checkDocs.data()["UserNumber"],
-                          );
-                        }
-                      });
+            StreamBuilder<DocumentSnapshot>(
+            stream: _userCollection.doc(user!.uid).snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              }
+
+              if (!snapshot.hasData || snapshot.data == null) {
+                return Center(child: Text("No Data Found"));
+              }
+
+              var data = snapshot.data?.data() as Map<String, dynamic>?;
+
+              userModel = UserModel(
+                userEmail: data?["UserEmail"] ?? "",
+                userImage: data?["UserImage"] ?? "",
+                userAddress: data?["UserAddress"] ?? "",
+                userGender: data?["UserGender"] ?? "",
+                userName: data?["UserName"] ?? "",
+                userPhoneNumber: data?["UserNumber"] ?? "",
+              );
+
+              productProvider?.setUserImage(userModel?.userImage);
+
                       return Container(
                         height: 603,
                         width: double.infinity,
@@ -442,5 +466,6 @@ TextEditingController userAddress = TextEditingController();
               child: CircularProgressIndicator(),
             ),
     );
+    
   }
 }

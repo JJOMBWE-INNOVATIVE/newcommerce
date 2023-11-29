@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:newcommerce/screens/homepage.dart';
 import 'package:newcommerce/screens/signup.dart';
 import 'package:newcommerce/widgets/changescreen.dart';
 import 'package:newcommerce/widgets/mybutton.dart';
@@ -52,6 +53,9 @@ Future<void> validation() async {
       AuthCredential credential = EmailAuthProvider.credential(email: email.text, password: password.text);
       UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       print(userCredential.user!.uid);
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()));
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Login successful")),
       );

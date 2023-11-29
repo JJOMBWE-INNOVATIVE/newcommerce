@@ -88,6 +88,19 @@ Future<void> validation() async {
         "UserGender": isMale == true ? "Male" : "Female",
         "PhoneNumber": phoneNumber.text,
       });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Successful Registration"),
+          duration: Duration(seconds: 1),
+        ),
+      );
+      Future.delayed(Duration(seconds: 1), () {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (ctx) => const Login(),
+          ),
+        );
+      });
     } on FirebaseAuthException catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

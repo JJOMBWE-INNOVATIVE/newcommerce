@@ -1,4 +1,5 @@
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:newcommerce/model/user_model.dart';
@@ -26,29 +27,59 @@ class _MyDrawerState extends State<MyDrawer> {
   bool checkoutColor = false;
   bool profileColor = false;
 
-  Widget _buildUserAccountsDrawerHeader() {
-    List<UserModel> userModel = Provider.of<ProductProvider>(context).userModelList;
-    return Column(
-      children: userModel.map((e) {
-        return UserAccountsDrawerHeader(
-          accountName: Text(
-            e.userName,
-            style: const TextStyle(color: Colors.black),
+
+Widget _buildUserAccountsDrawerHeader() {
+  ProductProvider productProvider = Provider.of<ProductProvider>(context);
+
+  return StreamBuilder<DocumentSnapshot>(
+    stream: FirebaseFirestore.instance.collection("User").doc(FirebaseAuth.instance.currentUser?.uid).snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return CircularProgressIndicator();
+      }
+
+      if (!snapshot.hasData || snapshot.data == null) {
+        return Text("No Data Found");
+      }
+
+      var data = snapshot.data?.data() as Map<String, dynamic>?;
+
+      UserModel userModel = UserModel(
+        userEmail: data?["UserEmail"] ?? "",
+        userImage: data?["UserImage"] ?? "",
+        userAddress: data?["UserAddress"] ?? "",
+        userGender: data?["UserGender"] ?? "",
+        userName: data?["UserName"] ?? "",
+        userPhoneNumber: data?["UserNumber"] ?? "",
+      );
+      productProvider.setUserImage(userModel.userImage);
+
+      return Column(
+        children: [
+          UserAccountsDrawerHeader(
+            accountName: Text(
+              userModel.userName,
+              style: const TextStyle(color: Colors.black),
+            ),
+            currentAccountPicture: CircleAvatar(
+              backgroundColor: Colors.white,
+              backgroundImage: userModel.userImage != null
+                  ? NetworkImage(userModel.userImage!)
+                  : AssetImage('images/tie.png') as ImageProvider, // Replace with your default image asset
+            ),
+            decoration: const BoxDecoration(color: Color(0xfff2f2f2)),
+            accountEmail: Text(userModel.userEmail, style: const TextStyle(color: Colors.black)),
           ),
-          currentAccountPicture: CircleAvatar(
-            backgroundColor: Colors.white,
-            backgroundImage: e.userImage == null
-                ? NetworkImage(e.userImage)
-                : const AssetImage("images/tie.png") as ImageProvider
-          ),
-          decoration: const BoxDecoration(color: Color(0xfff2f2f2)),
-          accountEmail: Text(e.userEmail, style: const TextStyle(color: Colors.black)),
-        );
-      }).toList(),
-    );
-  }
+          // Add other drawer items as needed
+        ],
+      );
+    },
+  );
+}
+
 
   @override
+  
   Widget build(BuildContext context) {
     return  Drawer(
       child: ListView(
@@ -78,7 +109,9 @@ class _MyDrawerState extends State<MyDrawer> {
                 profileColor = false;
                 aboutColor = false;
               });
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => const CheckOut()));
+              Navigator.of(context)
+              .pushReplacement
+              (MaterialPageRoute(builder: (ctx) => const CheckOut()));
             },
             leading: const Icon(Icons.shopping_cart),
             title: const Text("Checkout"),
@@ -108,7 +141,9 @@ class _MyDrawerState extends State<MyDrawer> {
                 profileColor = true;
                 checkoutColor = false;
               });
-              Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (ctx) => const ProfileScreen()));
+              Navigator.of(context)
+              .pushReplacement(MaterialPageRoute(builder:
+               (ctx) =>  ProfileScreen()));
             },
             leading: const Icon(Icons.info),
             title: const Text("Profile"),

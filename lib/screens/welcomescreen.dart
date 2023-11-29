@@ -42,10 +42,10 @@ class WelcomeScreen extends StatelessWidget {
                 height: 60,
                 width: double.infinity,
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    Text("Ready to start shopping? Sign Up",
+                    Text("Ready to start shopping? Press Start",
                     style:TextStyle(
                   fontSize: 18,
                 ),),
@@ -83,11 +83,13 @@ class WelcomeScreen extends StatelessWidget {
                   ),
                   ),
                   Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const Text("Already have an account? ",style: TextStyle(
-                          fontSize: 18,
-                        ),),
+                      Center(
+                        child: const Text("Already have an account? ",style: TextStyle(
+                            fontSize: 18,
+                          ),),
+                      ),
                       GestureDetector(
                         onTap: (){
                           Navigator.of(context).pushReplacement
